@@ -7,9 +7,19 @@ class Person:
         self.hp = hp
         self.damage = damage
         self.protection = protection
+        self.selected_body_part = 'h'
+        self.unprotected_part = 'h'
 
     def attack(self, target):
-        damage = self.damage * (100 / (100 + target.protection))
+        target.unprotected_part = random.choice(['h', 'b', 'l'])
+
+        damage = round(self.damage * (100 / (100 + target.protection)))
+        if damage == 0:
+            damage = 1
+        if self.selected_body_part == target.unprotected_part:
+            damage *= 1.25
+        else:
+            damage *= 0.75
         target.hp -= damage
 
         print(f'{self.name} attacks {target.name} with {self.damage} damage')
@@ -31,12 +41,11 @@ class Knight(Person):
         super().__init__(name, hp, damage, protection)
         self.regeneration = regeneration
 
-    #
     def attack(self, target):
         super().attack(target)
         self.hp += self.regeneration
+        print(f'{self.name} restored {self.regeneration} HP')
 
-    #
     def __str__(self):
         return f'{self.name} | HP: {self.hp}, damage: {self.damage}, protection: {self.protection}, regeneration: {self.regeneration}'
 
@@ -62,22 +71,32 @@ class Knight(Person):
 
 
 def fight(person_1, person_2):
-    print('>>> Fight: knight vs dragon <<<')
-    print('Дракон будет защищать две части тела из трех своими крыльями. чтобы нанести максимальный урон, '
+    print(f'>>> Fight: {person_1.name} vs {person_2.name} <<<')
+    print(person_1)
+    print(person_2)
+    print(f'{person_2.name} будет защищать две части тела из трех. чтобы нанести максимальный урон, '
           'вам нужно предугадать часть тела, которую он не будет защищать')
+    print('Введите часть тела, в которую будете атаковать')
+
     while person_1.is_alive and person_2.is_alive:
-        print('Введите часть тела, в которую будете атаковать')
         selected_body_part = input("'h': Head, 'b': Body, 'l': Legs >>> ")
-        unprotected_part = random.choice(['h', 'b', 'l'])
-        if selected_body_part == unprotected_part:
 
+        print(f'{person_2.name} не защитил {person_2.unprotected_part}')
+        person_2.selected_body_part = selected_body_part
 
+        person_1.attack(person_2)
 
-# slime = Person('slime', 100, 10, 5)
+        print(person_1)
+        print(person_2)
+
+        print('>>>>>>>>>>>>>>------------<<<<<<<<<<<<<<<<<')
+
+slime = Person('slime', 100, 10, 5)
 #
 #
-# knight = Knight('knight1', 250, 20, 5, 1)
-# knight.attack(slime)
+knight = Knight('knight', 250, 20, 5, 1)
+
+fight(knight, slime)
 
 
 # лес замок
