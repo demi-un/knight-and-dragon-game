@@ -2,25 +2,36 @@ import random
 
 
 class Person:
-    def __init__(self, name, hp, damage, protection):
+    def __init__(self, name, hp, damage, protection, selected_body_part='h', unprotected_part='h'):
         self.name = name
         self.hp = hp
         self.damage = damage
         self.protection = protection
-        self.selected_body_part = 'h'
-        self.unprotected_part = 'h'
+        self.selected_body_part = selected_body_part
+        self.unprotected_part = unprotected_part
 
-    def attack(self, target):
-        target.unprotected_part = random.choice(['h', 'b', 'l'])
+    def got_damage(self, damage):
+        damage = round(damage * (100 / (100 + self.protection)))
 
-        damage = round(self.damage * (100 / (100 + target.protection)))
         if damage == 0:
             damage = 1
+
+        self.hp -= damage
+
+        return damage
+
+    def attack(self, target):
+        # target.got_damage(self.damage)
+        damage = self.damage
+
+        target.unprotected_part = random.choice(['h', 'b', 'l'])
+
         if self.selected_body_part == target.unprotected_part:
             damage *= 1.25
         else:
             damage *= 0.75
-        target.hp -= damage
+
+        damage = target.got_damage()
 
         print(f'{self.name} attacks {target.name} with {self.damage} damage')
         print(f"The damage, taking into account the opponent's defense, was {damage}")
@@ -37,14 +48,15 @@ class Person:
 
 
 class Knight(Person):
-    def __init__(self, name, hp, damage, protection, regeneration):
-        super().__init__(name, hp, damage, protection)
+    def __init__(self, name, hp, damage, protection, regeneration, selected_body_part='h', unprotected_part='h'):
+        super().__init__(name, hp, damage, protection, selected_body_part, unprotected_part)
         self.regeneration = regeneration
 
     def attack(self, target):
         super().attack(target)
-        self.hp += self.regeneration
-        print(f'{self.name} restored {self.regeneration} HP')
+        if self.is_alive():
+            self.hp += self.regeneration
+            print(f'{self.name} restored {self.regeneration} HP')
 
     def __str__(self):
         return f'{self.name} | HP: {self.hp}, damage: {self.damage}, protection: {self.protection}, regeneration: {self.regeneration}'
@@ -82,7 +94,7 @@ def fight(person_1, person_2):
         selected_body_part = input("'h': Head, 'b': Body, 'l': Legs >>> ")
 
         print(f'{person_2.name} не защитил {person_2.unprotected_part}')
-        person_2.selected_body_part = selected_body_part
+        person_1.selected_body_part = selected_body_part
 
         person_1.attack(person_2)
 
@@ -92,8 +104,6 @@ def fight(person_1, person_2):
         print('>>>>>>>>>>>>>>------------<<<<<<<<<<<<<<<<<')
 
 slime = Person('slime', 100, 10, 5)
-#
-#
 knight = Knight('knight', 250, 20, 5, 1)
 
 fight(knight, slime)
