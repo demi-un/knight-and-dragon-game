@@ -115,6 +115,7 @@ def fight(person_1, person_2):
     print(person_1)
     print(person_2)
     print('-' * 40)
+    print('Дракон будет защищать 2 части тела из 3')
 
     while person_1.is_alive() and person_2.is_alive():
         print('\nВыберите часть тела, в которую будете АТАКОВАТЬ:')
